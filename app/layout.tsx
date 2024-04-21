@@ -21,8 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={latoFont.className}>{children}
-
+      <body className={latoFont.className}>
+        <div>
+          {children}
+        </div>
       </body>
     </html>
   );
