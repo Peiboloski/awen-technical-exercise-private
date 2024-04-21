@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lato } from "next/font/google";
 import "./globals.css";
+import { NextUIProvider } from "@nextui-org/react";
 
 const latoFont = Lato({
   subsets: ["latin"],
@@ -22,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={latoFont.className}>
-        <div>
-          {children}
-        </div>
+        <NextUIProvider>
+          <div className="bg-teal-100 text-base">
+            {children}
+          </div>
+        </NextUIProvider>
       </body>
-    </html>
+    </html >
   );
 }

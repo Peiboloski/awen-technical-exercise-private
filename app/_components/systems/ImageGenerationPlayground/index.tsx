@@ -1,16 +1,17 @@
 'use client'
 
-import Image from "next/image"
 import { Prediction } from "replicate"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
+import { Button, Card, CardBody, Image, Input, Textarea } from "@nextui-org/react"
+import classNames from "classnames"
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
 }
 
 const INPUT_NAMES = {
-    PROMPT: "prompt"
+    PROMPT: "prompt",
 }
 
 export const ImageGenerationPlayground = () => {
@@ -18,8 +19,10 @@ export const ImageGenerationPlayground = () => {
     const [isFetchingPrediction, setIsFetchingPrediction] = useState(false)
     const [image, setImage] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
-
     const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+    //Form fields state
+    const [prompt, setPrompt] = useState<string | null>(null)
 
     const clearPoolPredictionIntervalAndRemoveRef = () => {
         if (poolPredictionIntervalRef.current) {
@@ -36,10 +39,7 @@ export const ImageGenerationPlayground = () => {
                     const predictionResponse = await getPredictionsResponseAction({ prediction })
 
                     if (predictionResponse.status === 'succeeded') {
-                        setImage(predictionResponse.output[0])
-                        setPrediction(null)
-                        setIsFetchingPrediction(false)
-                        clearPoolPredictionIntervalAndRemoveRef()
+                        handlePredictionSuccess(predictionResponse)
                     } else if (predictionResponse.status === "processing" || predictionResponse.status === "starting") {
                         setPrediction(predictionResponse)
                     }
@@ -59,6 +59,14 @@ export const ImageGenerationPlayground = () => {
             setIsFetchingPrediction(false)
             clearPoolPredictionIntervalAndRemoveRef()
         }
+
+        const handlePredictionSuccess = (predictionResponse: Prediction) => {
+            setImage(predictionResponse.output[0])
+            setPrediction(null)
+            setIsFetchingPrediction(false)
+            clearPoolPredictionIntervalAndRemoveRef()
+        }
+
     }, [prediction, isFetchingPrediction, poolPredictionIntervalRef])
 
     //Clear the ongoing prediction pool interval if the component is unmounted
@@ -85,21 +93,53 @@ export const ImageGenerationPlayground = () => {
     }
 
 
-    console.log("generated Image", image)
-    return <section className="flex flex-row w-[100%]">
-        <div className="flex flex-col w-[400px]">
-            <form className="flex flex-col space-y-4" action={onGenerationFormSubmit}>
-                <label>
-                    <span>Image prompt</span>
-                    <input type="text" name={INPUT_NAMES.PROMPT} />
-                </label>
-                {<button type="submit" disabled={isFetchingPrediction}>
-                    {isFetchingPrediction ? "Generating image..." : "Generate image"}
-                </button>}
-            </form>
+    const isButtonDisabled = isFetchingPrediction || !prompt
+
+    return <section className={
+        classNames(
+            "flex flex-row w-[100%] h-[100%] jus gap-6",
+            "max-md:flex-col"
+        )
+    }>
+        <div className={
+            classNames(
+                "flex flex-col w-[600px] h-[100%]",
+                "max-md:w-[100%]"
+            )
+        }>
+            <Card classNames={
+                {
+                    base: "h-[100%] p-4",
+                    body: "h-100%"
+                }
+            }>
+                <CardBody className="h-[100%]">
+                    <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
+                        <div className="space-y-6">
+                            <Textarea isRequired classNames={{
+                                inputWrapper: "p-4",
+                                input: "text-large text-gray-800",
+                                label: "text-large mb-2"
+                            }}
+                                labelPlacement="outside"
+                                type="text"
+                                label="Image description"
+                                name={INPUT_NAMES.PROMPT}
+                                placeholder="Describe the image that you want to generate"
+                                onChange={(e) => setPrompt(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex flex-col ">
+                            <Button isDisabled={isButtonDisabled} className="p-6 text-large mt-auto" color="primary" type="submit" disabled={isButtonDisabled}>
+                                {isFetchingPrediction ? "Generating image..." : "Generate image"}
+                            </Button>
+                        </div>
+                    </form>
+                </CardBody>
+            </Card>
         </div>
-        <div className="flex flex-col w-[100%]">
-            {image && <Image width={300} height={300} src={image} alt="Generated image" />}
+        <div className="flex flex-col w-[100%] h-[100%] justify-end">
+            {image && <Image width={768} height={768} src={image} alt="Generated image" />}
             {error && <p className="text-red-500">{error}</p>}
         </div>
     </section >

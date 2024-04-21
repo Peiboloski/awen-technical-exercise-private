@@ -2,7 +2,7 @@ import ImageGenerationPlayground from "./_components/systems/ImageGenerationPlay
 
 export default async function Home() {
   return (
-    <main className="flex min-h-screen flex-row items-center justify-between p-24 max-w-screen-2xl mx-auto">
+    <main className="flex h-screen flex-row items-center justify-between p-24 max-w-screen-2xl mx-auto">
       <ImageGenerationPlayground />
     </main>
   );
