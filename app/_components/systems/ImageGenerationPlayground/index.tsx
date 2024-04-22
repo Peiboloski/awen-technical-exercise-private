@@ -3,67 +3,68 @@
 import { Prediction } from "replicate"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
-import { Button, Card, CardBody, Image, Input, Radio, RadioGroup, Select, Textarea } from "@nextui-org/react"
+import { Button, Card, CardBody, Image, Input, Radio, RadioGroup, Select, Spinner, Textarea } from "@nextui-org/react"
 import classNames from "classnames"
 import { GenerateImagePredictionInputInterfaceExposed } from "@/app/lib/replicateStableDiffusion"
+import CountUp from 'react-countup';
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
 }
 
-const INPUT_NAMES: Record<string, string> = {
+const INPUT_NAMES = {
     PROMPT: "prompt",
     DIMENSIONS: "dimensions",
     STYLE: "style"
 }
 
-const resolutions: Record<string, { value: string, width: number, height: number, drawingStyles?: string }> = {
+const resolutions = {
     "1:1": {
         value: "1:1",
-        width: 1024,
-        height: 1024,
+        width: 1024 / 2,
+        height: 1024 / 2,
         drawingStyles: "w-[20px] h-[20px]",
     },
     "4:5": {
         value: "4:5",
-        width: 1024,
-        height: 1280,
+        width: 1024 / 2,
+        height: 1280 / 2,
         drawingStyles: "w-[16px] h-[20px]"
 
     },
     "2:3": {
         value: "2:3",
-        width: 1024,
-        height: 1536,
+        width: 1024 / 2,
+        height: 1536 / 2,
         drawingStyles: "w-[14px] h-[21px]"
     },
     "4:7": {
         value: "4:7",
-        width: 1024,
-        height: 1792,
+        width: 1024 / 2,
+        height: 1792 / 2,
         drawingStyles: "w-[12px] h-[21px]"
     },
     "5:4": {
         value: "5:4",
-        width: 1280,
-        height: 1024,
+        width: 1280 / 2,
+        height: 1024 / 2,
         drawingStyles: "w-[25px] h-[20px]"
     }
     ,
     "3:2": {
         value: "3:2",
-        width: 1536,
-        height: 1024,
+        width: 1536 / 2,
+        height: 1024 / 2,
         drawingStyles: "w-[30px] h-[20px]"
     }
     ,
     "7:4": {
         value: "7:4",
-        width: 1792,
-        height: 1024,
+        width: 1792 / 2,
+        height: 1024 / 2,
         drawingStyles: "w-[35px] h-[20px]"
     },
-}
+} satisfies Record<string, { value: string, width: number, height: number, drawingStyles?: string }>
 
 const imageStyles: Record<string, { value: string, promtStart: string }> = {
     "photorealism": {
@@ -112,6 +113,7 @@ export const ImageGenerationPlayground = () => {
                     if (predictionResponse.status === 'succeeded') {
                         handlePredictionSuccess(predictionResponse)
                     } else if (predictionResponse.status === "processing" || predictionResponse.status === "starting") {
+                        console.log("Prediction is still processing", predictionResponse)
                         setPrediction(predictionResponse)
                     }
 
@@ -153,10 +155,11 @@ export const ImageGenerationPlayground = () => {
     const onGenerationFormSubmit = async (formData: FormData) => {
         setIsFetchingPrediction(true)
         setError(null)
+        setImage(null)
         try {
             const prompt = formData.get(INPUT_NAMES.PROMPT) as string
             const promptStart = imageStyles[formData.get(INPUT_NAMES.DIMENSIONS) as string].promtStart || ""
-            const { height, width } = resolutions[formData.get(INPUT_NAMES.DIMENSIONS) as string] || resolutions["1:1"]
+            const { height, width } = resolutions[formData.get(INPUT_NAMES.STYLE) as string] || resolutions["1:1"]
             const input = {
                 prompt: promptStart + prompt,
                 height,
@@ -164,6 +167,7 @@ export const ImageGenerationPlayground = () => {
             }
 
             setPredictionInput(input)
+            console.log("Input", input)
             const prediction = await generateImagePredictionAction(input)
             setPrediction(prediction)
         } catch (error) {
@@ -268,7 +272,15 @@ export const ImageGenerationPlayground = () => {
                     alt="Generated image"
                 />
             }
-            {error && <p className="text-red-500 text-xl mx-auto my-auto">{error}</p>}
+            {isFetchingPrediction &&
+                <div className="m-auto flex flex-row gap-4">
+                    <Spinner size="lg" />
+                    <p className="text-xl text-default-700 mx-auto my-auto">
+                        <CountUp start={0} decimals={1} end={1000} duration={1000} />s
+                    </p>
+                </div>
+            }
+            {error && <p className="text-red-500 text-xl font-semibold mx-auto my-auto">{error}</p>}
         </div>
     </section >
 }
