@@ -1,12 +1,14 @@
 'use client'
 
 import { Prediction } from "replicate"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
-import { Button, Card, CardBody, Image, Input, Radio, RadioGroup, Select, Spinner, Textarea } from "@nextui-org/react"
+import { Button, Card, CardBody, Image, Input, Spinner } from "@nextui-org/react"
 import classNames from "classnames"
 import { GenerateImagePredictionInputInterfaceExposed } from "@/app/lib/replicateStableDiffusion"
 import CountUp from 'react-countup';
+import TextArea from "../../atoms/TextArea"
+import { Radio, RadioGroup } from "../../atoms/Radio"
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
@@ -200,12 +202,7 @@ export const ImageGenerationPlayground = () => {
                 <CardBody className="h-[100%]">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
                         <div className="space-y-6">
-                            <Textarea isRequired classNames={{
-                                inputWrapper: "p-4",
-                                input: "text-large text-gray-800",
-                                label: "text-large mb-2"
-                            }}
-                                labelPlacement="outside"
+                            <TextArea
                                 type="text"
                                 label="Image description"
                                 name={INPUT_NAMES.PROMPT}
@@ -213,10 +210,8 @@ export const ImageGenerationPlayground = () => {
                                 onChange={(e) => setPrompt(e.target.value)}
                             />
                             <RadioGroup defaultValue={imageStyles["photorealism"].value} isRequired
-                                label="Style" name={INPUT_NAMES.DIMENSIONS} classNames={{
-                                    wrapper: "flex flex-row wrap gap-6",
-                                    label: "text-large mb-2 text-gray-800",
-                                }} >
+                                label="Style" name={INPUT_NAMES.DIMENSIONS}
+                            >
                                 {Object.entries(imageStyles).map(([key, value]) => (
                                     <Radio key={key} value={key}>
                                         <span className="text-large">{value.value}</span>
@@ -224,14 +219,11 @@ export const ImageGenerationPlayground = () => {
                                 ))}
                             </RadioGroup>
                             <RadioGroup defaultValue={resolutions["1:1"].value} isRequired
-                                label="Resolution" name={INPUT_NAMES.STYLE} classNames={{
-                                    wrapper: "flex flex-row wrap gap-6",
-                                    label: "text-large mb-2 text-gray-800",
-                                }} >
+                                label="Resolution" name={INPUT_NAMES.STYLE}>
                                 {Object.entries(resolutions).map(([key, value]) => (
                                     <Radio key={key} value={key}>
                                         <div className="flex items-center">
-                                            <span className="text-large mr-1">{key}</span>
+                                            <span className="mr-1">{key}</span>
                                             <div className={
                                                 classNames(
                                                     "ml-2 bg-foreground-300",
