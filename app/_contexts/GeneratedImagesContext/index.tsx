@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from "react"
 
-interface GeneratedImage {
+interface GeneratedImageInterface {
     url: string
     dimensions: {
         width: number,
@@ -38,8 +38,8 @@ const usePersistingState = <T extends unknown>(key: string, initialValue: T): [T
 
 //Hook to manage the state of the generated images with persistance in local storage
 const useGeneratedImagesState = () => {
-    const [images, setImages] = usePersistingState<GeneratedImage[]>(`generatedImages`, []) || []
-    const addImage = (image: GeneratedImage) => {
+    const [images, setImages] = usePersistingState<GeneratedImageInterface[]>(`generatedImages`, []) || []
+    const addImage = (image: GeneratedImageInterface) => {
         setImages([...images, image])
     }
     const removeImage = (index: number) => {
@@ -64,3 +64,4 @@ const GeneratedImagesProvider = ({ children }: { children: React.ReactNode }) =>
 }
 
 export { GeneratedImagesProvider, useGeneratedImages }
+export type { GeneratedImageInterface }
