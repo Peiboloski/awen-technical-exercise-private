@@ -9,6 +9,7 @@ import { GenerateImagePredictionInputInterfaceExposed } from "@/app/lib/replicat
 import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
 import { Radio, RadioGroup } from "../../atoms/Radio"
+import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext"
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
@@ -95,6 +96,9 @@ export const ImageGenerationPlayground = () => {
     const [error, setError] = useState<string | null>(null)
     const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
+    //Images persistent state context
+    const { addImage: addToAllGeneratedImagesArray } = useGeneratedImages()
+
     //Form fields state
     const [prompt, setPrompt] = useState<string | null>(null)
 
@@ -137,12 +141,20 @@ export const ImageGenerationPlayground = () => {
 
         const handlePredictionSuccess = (predictionResponse: Prediction) => {
             setImage(predictionResponse.output[0])
+            addToAllGeneratedImagesArray({
+                url: predictionResponse.output[0],
+                dimensions: {
+                    width: predictionInput?.width || resolutions["1:1"].width,
+                    height: predictionInput?.height || resolutions["1:1"].height
+
+                }
+            })
             setPrediction(null)
             setIsFetchingPrediction(false)
             clearPoolPredictionIntervalAndRemoveRef()
         }
 
-    }, [prediction, isFetchingPrediction, poolPredictionIntervalRef])
+    }, [prediction, isFetchingPrediction, poolPredictionIntervalRef, predictionInput, addToAllGeneratedImagesArray])
 
     //Clear the ongoing prediction pool interval if the component is unmounted
     useEffect(() => {
