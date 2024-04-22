@@ -5,7 +5,20 @@ import Replicate, { Prediction } from "replicate";
 const STABILITY_AI_SDXL_MODEL = "stability-ai/sdxl";
 const STABILITY_AI_SDXL_MODEL_VERSION = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b";
 
-const BASE_INPUT = {
+interface GenerateImagePredictionInputInterfaceExposed {
+    width: number,
+    height: number,
+    prompt: string,
+}
+
+interface GenerateImagePredictionInputInterface extends GenerateImagePredictionInputInterfaceExposed {
+    refine: string,
+    apply_watermark: boolean,
+    num_inference_steps: number
+}
+
+
+const BASE_INPUT: GenerateImagePredictionInputInterface = {
     width: 768,
     height: 768,
     prompt: "An astronaut riding a rainbow unicorn",
@@ -28,15 +41,11 @@ const getReplicateInstance = () => {
     return replicateInstance;
 }
 
-interface GenerateImagePredictionProps {
-    prompt: string
-}
-
-const generateImagePrediction = async ({ prompt }: GenerateImagePredictionProps) => {
+const generateImagePrediction = async (props: Partial<GenerateImagePredictionInputInterface>) => {
     let replicate = getReplicateInstance();
     const input = {
         ...BASE_INPUT,
-        prompt
+        ...props
     };
     let prediction
 
@@ -65,3 +74,4 @@ const getPredictionResponse = async ({ predictionId }: { predictionId: string })
 
 
 export { generateImagePrediction, getPredictionResponse }
+export type { GenerateImagePredictionInputInterfaceExposed }
