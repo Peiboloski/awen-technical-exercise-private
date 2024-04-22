@@ -1,12 +1,16 @@
 {
   "name": "awen-technical-exercise",
   "version": "0.1.0",
+  "engines": {
+    "node": "v21.6.x"
+  },
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run project:check && next dev",
+    "build": "npm run project:check && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "project:check": "node check.ts"
   },
   "dependencies": {
     "@nextui-org/react": "^2.3.5",
@@ -22,9 +26,11 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.2",
     "postcss": "^8",
+    "semver": "^7.6.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
