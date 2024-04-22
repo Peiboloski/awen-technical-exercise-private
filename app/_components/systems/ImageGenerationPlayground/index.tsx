@@ -159,7 +159,7 @@ export const ImageGenerationPlayground = () => {
         try {
             const prompt = formData.get(INPUT_NAMES.PROMPT) as string
             const promptStart = imageStyles[formData.get(INPUT_NAMES.DIMENSIONS) as string].promtStart || ""
-            const { height, width } = resolutions[formData.get(INPUT_NAMES.STYLE) as string] || resolutions["1:1"]
+            const { height, width } = resolutions[formData.get(INPUT_NAMES.STYLE) as keyof typeof resolutions] || resolutions["1:1"]
             const input = {
                 prompt: promptStart + prompt,
                 height,
@@ -244,7 +244,7 @@ export const ImageGenerationPlayground = () => {
                             </RadioGroup>
 
                         </div>
-                        <div className="flex flex-col ">
+                        <div className="flex flex-col bg-background sticky bottom-[-20px] w-[100%] py-4">
                             <Button isDisabled={isButtonDisabled} className="p-6 text-large mt-auto" color="primary" type="submit" disabled={isButtonDisabled}>
                                 {isFetchingPrediction ? "Generating image..." : "Generate image"}
                             </Button>
