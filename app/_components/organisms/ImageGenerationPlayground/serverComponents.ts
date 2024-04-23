@@ -1,11 +1,12 @@
 'use server'
 
-import { GenerateImagePredictionInputInterfaceExposed, generateImagePrediction, getPredictionResponse } from "@/app/lib/replicateStableDiffusion"
+import { GenerateImagePredictionInputInterfaceExposed, GenerationTypes } from "@/app/_types/imageGenerationTypes"
+import { generateImagePrediction, getPredictionResponse } from "@/app/lib/replicateStableDiffusion"
 import { Prediction } from "replicate"
 
-const generateImagePredictionAction = async (props: Partial<GenerateImagePredictionInputInterfaceExposed>) => {
+const generateImagePredictionAction = async ({ userInput, type = GenerationTypes.IMAGE }: { userInput: Partial<GenerateImagePredictionInputInterfaceExposed>, type?: GenerationTypes }) => {
     try {
-        const prediction: Prediction = await generateImagePrediction(props)
+        const prediction: Prediction = await generateImagePrediction({ userInput, type })
         return prediction
     } catch (error) {
         throw new Error("Error generating image prediction")

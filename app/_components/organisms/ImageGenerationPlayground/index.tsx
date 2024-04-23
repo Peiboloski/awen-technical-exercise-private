@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from "react"
 import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
 import { Button, Card, CardBody, Image, Input, Spinner } from "@nextui-org/react"
 import classNames from "classnames"
-import { GenerateImagePredictionInputInterfaceExposed } from "@/app/lib/replicateStableDiffusion"
 import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
 import { Radio, RadioGroup } from "../../atoms/Radio"
 import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext"
 import GeneratedImageActions from "../../molecules/GeneratedImageActions"
+import { GenerateImagePredictionInputInterfaceExposed, GenerationTypes } from "@/app/_types/imageGenerationTypes"
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
@@ -175,15 +175,14 @@ export const ImageGenerationPlayground = () => {
             const prompt = formData.get(INPUT_NAMES.PROMPT) as string
             const promptStart = imageStyles[formData.get(INPUT_NAMES.DIMENSIONS) as string].promtStart || ""
             const { height, width } = resolutions[formData.get(INPUT_NAMES.STYLE) as keyof typeof resolutions] || resolutions["1:1"]
-            const input = {
+            const userInput = {
                 prompt: promptStart + prompt,
                 height,
                 width
             }
 
-            setPredictionInput(input)
-            console.log("Input", input)
-            const prediction = await generateImagePredictionAction(input)
+            setPredictionInput(userInput)
+            const prediction = await generateImagePredictionAction({ userInput, type: GenerationTypes.IMAGE })
             setPrediction(prediction)
         } catch (error) {
             setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL)
