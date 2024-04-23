@@ -2,7 +2,7 @@
   "name": "awen-technical-exercise",
   "version": "0.1.0",
   "engines": {
-    "node": "v21.6.x"
+    "node": "v20.x"
   },
   "private": true,
   "scripts": {
