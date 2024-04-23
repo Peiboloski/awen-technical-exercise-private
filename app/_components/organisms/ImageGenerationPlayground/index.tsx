@@ -3,7 +3,7 @@
 import { Prediction } from "replicate"
 import { useEffect, useRef, useState } from "react"
 import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
-import { Button, Card, CardBody, Image, Input, Spinner } from "@nextui-org/react"
+import { Button, Card, CardBody, Image, Input, Spinner, Tabs, Tab, CardHeader } from "@nextui-org/react"
 import classNames from "classnames"
 import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
@@ -96,6 +96,9 @@ export const ImageGenerationPlayground = () => {
     const [image, setImage] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+    //Selected Tab
+    const [selectedTab, setSelectedTab] = useState<GenerationTypes>(GenerationTypes.IMAGE)
 
     //Images persistent state context
     const { addImage: addToAllGeneratedImagesArray } = useGeneratedImages()
@@ -207,13 +210,31 @@ export const ImageGenerationPlayground = () => {
         }>
             <Card classNames={
                 {
-                    base: "h-[100%] p-4",
+                    base: "h-[100%] p-4 overfow-scroll",
                     body: "h-100%"
                 }
             }>
+<CardHeader>
+                    <Tabs
+                        selectedKey={selectedTab}
+                        onSelectionChange={(key) => setSelectedTab(key as GenerationTypes)}
+                        classNames={
+                            {
+                                tab: "text-base font-emerald-600 font-medium  p-5 m-1",
+                                cursor: "bg-emerald-100",
+                            }
+                        }
+                    >
+                        <Tab key={GenerationTypes.IMAGE} title="Text to Image">
+                        </Tab>
+                        <Tab key={GenerationTypes.IMAGE_TO_IMAGE} title="Image to Image">
+                        </Tab>
+                    </Tabs>
+                </CardHeader>
                 <CardBody className="h-[100%]">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
                         <div className="space-y-6">
+
                             <TextArea
                                 type="text"
                                 label="Image description"
