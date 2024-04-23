@@ -1,10 +1,11 @@
 'use client'
-import { GeneratedImageInterface, useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext";
-import { Button, Card, CardBody, Image, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@nextui-org/react";
-import classNames from "classnames";
+import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext";
+import { Button, Image, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import FolderIcon from "../../icons/foder";
 import PhotoAlbum from "react-photo-album";
+import type { RenderPhotoProps } from "react-photo-album";
+import GeneratedImageActions from "../../molecules/GeneratedImageActions";
 
 
 
@@ -20,6 +21,22 @@ const GeneratedImagesModal: React.FC = () => {
     const { images = [] } = useGeneratedImages();
 
     if (!hasMounted) return null;
+
+    const CustomRenderedImage = ({
+        photo,
+        imageProps: { alt, title, sizes, className, onClick },
+        wrapperStyle,
+    }: RenderPhotoProps) => {
+        return (
+            <div style={{ ...wrapperStyle, position: "relative" }}>
+                <GeneratedImageActions url={photo.src} name={alt} />
+                <Image
+                    src={photo.src}
+                    {...{ alt, title, sizes, className, onClick }}
+                />
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -47,14 +64,15 @@ const GeneratedImagesModal: React.FC = () => {
                                 Generated Images
                             </ModalHeader>
                             <ModalBody>
-                                <PhotoAlbum targetRowHeight={300} layout="rows" photos={images.map((image) => {
+                                <PhotoAlbum targetRowHeight={400} layout="rows" photos={images.map((image) => {
                                     return {
                                         src: image.url,
                                         width: image.dimensions.width,
-                                        height: image.dimensions.height
+                                        height: image.dimensions.height,
                                     }
 
-                                })} />
+                                })}
+                                    renderPhoto={CustomRenderedImage} />
                             </ModalBody>
                         </>
                     )}
@@ -63,5 +81,6 @@ const GeneratedImagesModal: React.FC = () => {
         </div >
     )
 }
+
 
 export default GeneratedImagesModal;

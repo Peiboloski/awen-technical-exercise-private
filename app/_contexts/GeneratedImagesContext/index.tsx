@@ -42,8 +42,8 @@ const useGeneratedImagesState = () => {
     const addImage = (image: GeneratedImageInterface) => {
         setImages([...images, image])
     }
-    const removeImage = (index: number) => {
-        setImages(images.filter((value, elementIndex) => elementIndex !== index))
+    const removeImage = (url: string) => {
+        setImages(images.filter(image => image.url !== url))
     }
     return { images, setImages, addImage, removeImage }
 }
