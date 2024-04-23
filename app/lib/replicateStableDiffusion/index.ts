@@ -1,7 +1,6 @@
 'server-only'
 import { GenerateImagePredictionInputInterface, GenerateImagePredictionInputInterfaceExposed, GenerationTypes } from "@/app/_types/imageGenerationTypes";
-import { input } from "@nextui-org/react";
-import Replicate, { Prediction } from "replicate";
+import Replicate from "replicate";
 
 
 const STABILITY_AI_SDXL_MODEL = "stability-ai/sdxl";

@@ -5,8 +5,16 @@ import Garbage from "../../icons/garbage";
 import InputImage from "../../icons/inputImage";
 import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext";
 
+type ActionInterface = {
+    icon: JSX.Element,
+    tooltip: string,
+    hide?: boolean,
+    onClick: () => void
+}
+
+
 const GeneratedImageActions = ({ url, name, isInPlayground }: { url: string, name: string, isInPlayground?: boolean }) => {
-    const { removeImage } = useGeneratedImages();
+    const { removeImage, setGenerationInputImage } = useGeneratedImages();
 
     async function downloadImage({ url, name }: { url: string, name: string }) {
         try {
@@ -24,18 +32,13 @@ const GeneratedImageActions = ({ url, name, isInPlayground }: { url: string, nam
         }
     }
 
-    type ActionInterface = {
-        icon: JSX.Element,
-        tooltip: string,
-        hide?: boolean,
-        onClick: () => void
-    }
-
     const actions = [
         {
             icon: <InputImage />,
             tooltip: "Generate image with this one as input",
-            onClick: () => { }
+            onClick: () => {
+                setGenerationInputImage(url)
+            }
         },
         {
             icon: <Garbage />,
@@ -52,12 +55,23 @@ const GeneratedImageActions = ({ url, name, isInPlayground }: { url: string, nam
     return (
         <div className="absolute bottom-2 right-2 z-20 flex flex-row gap-2">
             {actions.map((action, index) => (
-                !action.hide && <Tooltip key={index} content={action.tooltip} className="dark">
-                    <Button className="bg-foreground-600 bg-opacity-30 backdrop-blur text-foreground-50 hover:bg-opacity-100" isIconOnly startContent={action.icon} onClick={action.onClick} />
-                </Tooltip>
+                <ImageActionButton key={index}  {...action} />
             ))}
         </div>
     )
 }
 
-export default GeneratedImageActions;
+
+const ImageActionButton = ({ hide, icon, onClick, tooltip }: ActionInterface) => {
+    if (hide) {
+        return null;
+    }
+
+    return (
+        <Tooltip content={tooltip} className="dark">
+            <Button className="bg-foreground-600 bg-opacity-30 backdrop-blur text-foreground-50 hover:bg-opacity-100" isIconOnly startContent={icon} onClick={onClick} />
+        </Tooltip>
+    );
+};
+
+export { ImageActionButton, GeneratedImageActions };

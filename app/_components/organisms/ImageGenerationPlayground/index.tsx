@@ -9,8 +9,10 @@ import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
 import { Radio, RadioGroup } from "../../atoms/Radio"
 import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext"
-import GeneratedImageActions from "../../molecules/GeneratedImageActions"
+import { GeneratedImageActions, ImageActionButton } from "../../molecules/GeneratedImageActions"
 import { GenerateImagePredictionInputInterfaceExposed, GenerationTypes } from "@/app/_types/imageGenerationTypes"
+import { UploadButton } from "../../molecules/ImageFileUploader"
+import Garbage from "../../icons/garbage"
 
 const IMAGE_GENERATION_ERROR_MESSAGES = {
     GENERAL: "Error generating the image, please try again"
@@ -18,6 +20,7 @@ const IMAGE_GENERATION_ERROR_MESSAGES = {
 
 const INPUT_NAMES = {
     PROMPT: "prompt",
+    INPUT_IMAGE: "inputImage",
     DIMENSIONS: "dimensions",
     STYLE: "style"
 }
@@ -101,10 +104,11 @@ export const ImageGenerationPlayground = () => {
     const [selectedTab, setSelectedTab] = useState<GenerationTypes>(GenerationTypes.IMAGE)
 
     //Images persistent state context
-    const { addImage: addToAllGeneratedImagesArray } = useGeneratedImages()
+    const { addImage: addToAllGeneratedImagesArray, generationInputImage, setGenerationInputImage } = useGeneratedImages()
 
     //Form fields state
     const [prompt, setPrompt] = useState<string | null>(null)
+    const [inputImageUploadError, setInputImageUploadError] = useState<boolean | null>(null)
 
     const clearPoolPredictionIntervalAndRemoveRef = () => {
         if (poolPredictionIntervalRef.current) {
@@ -181,11 +185,12 @@ export const ImageGenerationPlayground = () => {
             const userInput = {
                 prompt: promptStart + prompt,
                 height,
-                width
+                width,
+                image: selectedTab == GenerationTypes.IMAGE_TO_IMAGE ? generationInputImage : undefined
             }
 
             setPredictionInput(userInput)
-            const prediction = await generateImagePredictionAction({ userInput, type: GenerationTypes.IMAGE })
+            const prediction = await generateImagePredictionAction({ userInput, type: selectedTab })
             setPrediction(prediction)
         } catch (error) {
             setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL)
@@ -204,7 +209,7 @@ export const ImageGenerationPlayground = () => {
     }>
         <div className={
             classNames(
-                "flex flex-col w-[600px] h-[100%]",
+                "flex flex-col w-[600px] h-[100%] font-",
                 "max-md:w-[100%]"
             )
         }>
@@ -214,7 +219,7 @@ export const ImageGenerationPlayground = () => {
                     body: "h-100%"
                 }
             }>
-<CardHeader>
+                <CardHeader>
                     <Tabs
                         selectedKey={selectedTab}
                         onSelectionChange={(key) => setSelectedTab(key as GenerationTypes)}
@@ -233,8 +238,39 @@ export const ImageGenerationPlayground = () => {
                 </CardHeader>
                 <CardBody className="h-[100%]">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
-                        <div className="space-y-6">
-
+                        <div className="space-y-6 mr-auto">
+                            {(selectedTab == GenerationTypes.IMAGE_TO_IMAGE) && <div>
+                                <p className="text-large font-normal mb-2">Input image <span className="text-danger">*</span></p>
+                                {window && !generationInputImage && <UploadButton
+                                    appearance={
+                                        {
+                                            button: "mr-auto",
+                                            allowedContent: "mr-auto",
+                                            clearBtn: "mr-auto"
+                                        }
+                                    }
+                                    content={{ button: "Upload image" }}
+                                    endpoint="imageUploader"
+                                    onClientUploadComplete={(res) => {
+                                        setGenerationInputImage(res[0].url)
+                                    }}
+                                    onUploadError={(error: Error) => {
+                                        setInputImageUploadError(true)
+                                    }}
+                                />}
+                                {
+                                    generationInputImage && <div className="relative">
+                                        <Image
+                                            src={generationInputImage}
+                                            alt="Input image"
+                                            className="object-contain"
+                                        />
+                                        <div className="absolute bottom-2 right-2 z-20">
+                                            <ImageActionButton icon={<Garbage />} onClick={() => { setGenerationInputImage(null) }} tooltip="Change the input image" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>}
                             <TextArea
                                 type="text"
                                 label="Image description"

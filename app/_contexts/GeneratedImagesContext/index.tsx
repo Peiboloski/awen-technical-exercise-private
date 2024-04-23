@@ -39,13 +39,14 @@ const usePersistingState = <T extends unknown>(key: string, initialValue: T): [T
 //Hook to manage the state of the generated images with persistance in local storage
 const useGeneratedImagesState = () => {
     const [images, setImages] = usePersistingState<GeneratedImageInterface[]>(`generatedImages`, []) || []
+    const [generationInputImage, setGenerationInputImage] = usePersistingState<string | null>(`generationInputImage`, null) || null
     const addImage = (image: GeneratedImageInterface) => {
         setImages([...images, image])
     }
     const removeImage = (url: string) => {
         setImages(images.filter(image => image.url !== url))
     }
-    return { images, setImages, addImage, removeImage }
+    return { images, setImages, addImage, removeImage, generationInputImage, setGenerationInputImage }
 }
 
 const GeneratedImagesContext = createContext<ReturnType<typeof useGeneratedImagesState> | null>(null)

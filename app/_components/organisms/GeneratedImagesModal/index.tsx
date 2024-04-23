@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import FolderIcon from "../../icons/foder";
 import PhotoAlbum from "react-photo-album";
 import type { RenderPhotoProps } from "react-photo-album";
-import GeneratedImageActions from "../../molecules/GeneratedImageActions";
+import { GeneratedImageActions } from "../../molecules/GeneratedImageActions";
 
 
 
