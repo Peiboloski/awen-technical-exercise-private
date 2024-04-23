@@ -40,17 +40,18 @@ const GeneratedImagesModal: React.FC = () => {
 
     return (
         <div>
-            <Button
-                onClick={onOpen}
-                className={
-                    "p-4 bg-emerald-200 text-emerald-900 font-normal"
-                }
-                size="lg"
-                variant="shadow"
-                startContent={<FolderIcon />}
-            >
-                See {images.length} generated images
-            </Button>
+            {images && (images.length > 0) &&
+                <Button
+                    onClick={onOpen}
+                    className={
+                        "p-4 bg-emerald-200 text-emerald-900 font-normal"
+                    }
+                    size="lg"
+                    variant="shadow"
+                    startContent={<FolderIcon />}
+                >
+                    See {images.length} generated images
+                </Button>}
             <Modal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
