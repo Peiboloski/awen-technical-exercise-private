@@ -1,187 +1,38 @@
 'use client'
 
-import { Prediction } from "replicate"
-import { useEffect, useRef, useState } from "react"
-import { generateImagePredictionAction, getPredictionsResponseAction } from "./serverComponents"
-import { Button, Card, CardBody, Image, Input, Spinner, Tabs, Tab, CardHeader } from "@nextui-org/react"
+import { useState } from "react"
+import { Button, Card, CardBody, Image, Spinner, Tabs, Tab, CardHeader } from "@nextui-org/react"
 import classNames from "classnames"
 import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
 import { Radio, RadioGroup } from "../../atoms/Radio"
 import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext"
 import { GeneratedImageActions, ImageActionButton } from "../../molecules/GeneratedImageActions"
-import { GenerateImagePredictionInputInterfaceExposed, GenerationTypes } from "@/app/_types/imageGenerationTypes"
+import { GenerationTypes } from "@/app/_types/imageGenerationTypes"
 import { UploadButton } from "../../molecules/ImageFileUploader"
 import Garbage from "../../icons/garbage"
-
-const IMAGE_GENERATION_ERROR_MESSAGES = {
-    GENERAL: "Error generating the image, please try again"
-}
-
-const INPUT_NAMES = {
-    PROMPT: "prompt",
-    INPUT_IMAGE: "inputImage",
-    DIMENSIONS: "dimensions",
-    STYLE: "style"
-}
-
-const resolutions = {
-    "1:1": {
-        value: "1:1",
-        width: 1024 / 2,
-        height: 1024 / 2,
-        drawingStyles: "w-[20px] h-[20px]",
-    },
-    "4:5": {
-        value: "4:5",
-        width: 1024 / 2,
-        height: 1280 / 2,
-        drawingStyles: "w-[16px] h-[20px]"
-
-    },
-    "2:3": {
-        value: "2:3",
-        width: 1024 / 2,
-        height: 1536 / 2,
-        drawingStyles: "w-[14px] h-[21px]"
-    },
-    "4:7": {
-        value: "4:7",
-        width: 1024 / 2,
-        height: 1792 / 2,
-        drawingStyles: "w-[12px] h-[21px]"
-    },
-    "5:4": {
-        value: "5:4",
-        width: 1280 / 2,
-        height: 1024 / 2,
-        drawingStyles: "w-[25px] h-[20px]"
-    }
-    ,
-    "3:2": {
-        value: "3:2",
-        width: 1536 / 2,
-        height: 1024 / 2,
-        drawingStyles: "w-[30px] h-[20px]"
-    }
-    ,
-    "7:4": {
-        value: "7:4",
-        width: 1792 / 2,
-        height: 1024 / 2,
-        drawingStyles: "w-[35px] h-[20px]"
-    },
-} satisfies Record<string, { value: string, width: number, height: number, drawingStyles?: string }>
-
-const imageStyles: Record<string, { value: string, promtStart: string }> = {
-    "photorealism": {
-        value: "photorealism",
-        promtStart: "A photorealistic image of ",
-    },
-    artistic: {
-        value: "artistic",
-        promtStart: "An artistic image of ",
-    },
-    sketch: {
-        value: "sketch",
-        promtStart: "A sketch of ",
-    },
-    unset: {
-        value: "unset",
-        promtStart: "",
-    }
-}
+import { IMAGE_STYLES, INPUT_NAMES, RESOLUTIONS } from "./constants"
+import useImagesPrediction from "./hooks/useImagePrediction"
 
 export const ImageGenerationPlayground = () => {
-    const [prediction, setPrediction] = useState<Prediction | null>(null)
-    const [predictionInput, setPredictionInput] = useState<GenerateImagePredictionInputInterfaceExposed | null>(null)
-    const [isFetchingPrediction, setIsFetchingPrediction] = useState(false)
-    const [image, setImage] = useState<string | null>(null)
-    const [error, setError] = useState<string | null>(null)
-    const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null)
+    const { error, image, isFetchingPrediction, predictionInput, startNewImagePrediction } = useImagesPrediction()
 
     //Selected Tab
     const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationTypes>(GenerationTypes.IMAGE)
 
     //Images persistent state context
-    const { addImage: addToAllGeneratedImagesArray, generationInputImage, setGenerationInputImage } = useGeneratedImages()
+    const { generationInputImage, setGenerationInputImage } = useGeneratedImages()
 
     //Form fields state
     const [prompt, setPrompt] = useState<string | null>(null)
     const [inputImageUploadError, setInputImageUploadError] = useState<boolean | null>(null)
 
-    const clearPoolPredictionIntervalAndRemoveRef = () => {
-        if (poolPredictionIntervalRef.current) {
-            clearInterval(poolPredictionIntervalRef.current)
-            poolPredictionIntervalRef.current = null
-        }
-    }
-
-    //When a prediction is being generated, pool the prediction response
-    useEffect(() => {
-        if (prediction && isFetchingPrediction && !poolPredictionIntervalRef.current) {
-            poolPredictionIntervalRef.current = setInterval(async () => {
-                try {
-                    const predictionResponse = await getPredictionsResponseAction({ prediction })
-
-                    if (predictionResponse.status === 'succeeded') {
-                        handlePredictionSuccess(predictionResponse)
-                    } else if (predictionResponse.status === "processing" || predictionResponse.status === "starting") {
-                        console.log("Prediction is still processing", predictionResponse)
-                        setPrediction(predictionResponse)
-                    }
-
-                    else if (predictionResponse.status === "failed" || predictionResponse.status === "canceled") {
-                        handlePredictionFailure()
-                    }
-                } catch (error) {
-                    handlePredictionFailure()
-                }
-            }, 1000)
-        }
-
-        const handlePredictionFailure = () => {
-            setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL)
-            setPrediction(null)
-            setIsFetchingPrediction(false)
-            clearPoolPredictionIntervalAndRemoveRef()
-        }
-
-        const handlePredictionSuccess = (predictionResponse: Prediction) => {
-            setImage(predictionResponse.output[0])
-            addToAllGeneratedImagesArray({
-                url: predictionResponse.output[0],
-                dimensions: {
-                    width: predictionInput?.width || resolutions["1:1"].width,
-                    height: predictionInput?.height || resolutions["1:1"].height
-
-                }
-            })
-            setPrediction(null)
-            setIsFetchingPrediction(false)
-            clearPoolPredictionIntervalAndRemoveRef()
-        }
-
-    }, [prediction, isFetchingPrediction, poolPredictionIntervalRef, predictionInput, addToAllGeneratedImagesArray])
-
-    //Clear the ongoing prediction pool interval if the component is unmounted
-    useEffect(() => {
-        return () => {
-            if (poolPredictionIntervalRef.current) {
-                clearInterval(poolPredictionIntervalRef.current)
-            }
-        }
-    }, [])
-
 
     const onGenerationFormSubmit = async (formData: FormData) => {
-        setIsFetchingPrediction(true)
-        setError(null)
-        setImage(null)
         try {
             const prompt = formData.get(INPUT_NAMES.PROMPT) as string
-            const promptStart = imageStyles[formData.get(INPUT_NAMES.DIMENSIONS) as string].promtStart || ""
-            const { height, width } = resolutions[formData.get(INPUT_NAMES.STYLE) as keyof typeof resolutions] || resolutions["1:1"]
+            const promptStart = IMAGE_STYLES[formData.get(INPUT_NAMES.DIMENSIONS) as string].promtStart || ""
+            const { height, width } = RESOLUTIONS[formData.get(INPUT_NAMES.STYLE) as keyof typeof RESOLUTIONS] || RESOLUTIONS["1:1"]
             const userInput = {
                 prompt: promptStart + prompt,
                 height,
@@ -189,12 +40,10 @@ export const ImageGenerationPlayground = () => {
                 image: selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE ? generationInputImage : undefined
             }
 
-            setPredictionInput(userInput)
-            const prediction = await generateImagePredictionAction({ userInput, type: selectedGenerationType })
-            setPrediction(prediction)
+            await startNewImagePrediction({ userInput, type: selectedGenerationType })
         } catch (error) {
-            setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL)
-            setIsFetchingPrediction(false)
+            //Generation errors are handled by the useImagesPrediction hook
+            //And the error is being returned using the error state vaiable
         }
     }
 
@@ -281,18 +130,18 @@ export const ImageGenerationPlayground = () => {
                                 placeholder="Describe the image that you want to generate"
                                 onChange={(e) => setPrompt(e.target.value)}
                             />
-                            <RadioGroup defaultValue={imageStyles["photorealism"].value} isRequired
+                            <RadioGroup defaultValue={IMAGE_STYLES["photorealism"].value} isRequired
                                 label="Style" name={INPUT_NAMES.DIMENSIONS}
                             >
-                                {Object.entries(imageStyles).map(([key, value]) => (
+                                {Object.entries(IMAGE_STYLES).map(([key, value]) => (
                                     <Radio key={key} value={key}>
                                         <span className="text-large">{value.value}</span>
                                     </Radio>
                                 ))}
                             </RadioGroup>
-                            <RadioGroup defaultValue={resolutions["1:1"].value} isRequired
+                            <RadioGroup defaultValue={RESOLUTIONS["1:1"].value} isRequired
                                 label="Resolution" name={INPUT_NAMES.STYLE}>
-                                {Object.entries(resolutions).map(([key, value]) => (
+                                {Object.entries(RESOLUTIONS).map(([key, value]) => (
                                     <Radio key={key} value={key}>
                                         <div className="flex items-center">
                                             <span className="mr-1">{key}</span>
@@ -328,10 +177,10 @@ export const ImageGenerationPlayground = () => {
                         }
                         }
                         width={
-                            predictionInput?.width || resolutions["1:1"].width
+                            predictionInput?.width || RESOLUTIONS["1:1"].width
                         }
                         height={
-                            predictionInput?.height || resolutions["1:1"].height
+                            predictionInput?.height || RESOLUTIONS["1:1"].height
                         }
                         src={image}
                         alt="Generated image">
