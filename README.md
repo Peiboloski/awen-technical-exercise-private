@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+  
 
-First, run the development server:
+# Awen technical exercise
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[`🔗 Live application`](https://nextjs.org/docs/basic-features/font-optimization)
+[`🔗 Demo of the exercise functionality`](https://www.loom.com/share/d90eea45cf8644639464dba3fc2841d8?sid=d4441699-04a9-4394-8c26-5e242b907582)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## To run locally
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+  
 
-## Learn More
+1. Install node version specified in package.json, if using nvm you can just run `nvm use`.
 
-To learn more about Next.js, take a look at the following resources:
+2. Install dependencies `npm i`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Add required environmental variables specified in `check.ts`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+4. Run the development server `npm run dev`
 
-## Deploy on Vercel
+  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What I have implemented?
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  
+
+The application has the following features:
+
+ - Text to image generation. Only style and dimensions are customizable in this example
+ - Image to image generation. Possibility to update an image or select one of the generated ones.
+ - Image preview with the ability to download or use as input image.
+ -  Album with generated images (actions to download, delete or add as input)
+
+## Further improvements needed
+### Functionality and UX
+ - Add more customization to generations (Add custom style, configure similarity with input image...). Also, tweak parameters to get better results.
+ - Generated images are served from Replicate delivery URL. They are not available after a while. It would be needed to upload them to other storage location.
+ - When selecting an existing generated image to generate a new image from, alert the user of the action and navigate to the image generation with the Img2Img Tab active.
+ - Add a way to select input image from the generated ones directly in the form. 
+ - Show specific errors depending on why the generation has not been successful.
+
+### Codebase
+-  Substitute console.log by logging library and register production logs in a service.
+- Use a design system in a more systematic way. To make sure colours, spacing and sizes are consistent across the application. 
+- Handle and log errors in a more structured way. Add error boundaries and fallback error pages in Frontend.
+- EXTRA: Add some integration tests and integrate in CI

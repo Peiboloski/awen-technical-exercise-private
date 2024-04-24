@@ -132,19 +132,13 @@ export const ImageGenerationPlayground = () => {
         </div>
         <div className="flex flex-col w-[100%] h-[100%] justify-end">
             {imagePredicted &&
-                <div className="mt-auto ml-auto relative">
+                <div className="mt-auto ml-auto h-[100%] relative">
                     <Image
                         classNames={{
                             wrapper: "h-[100%] overflow-hidden display-flex flex-col justify-end",
                             img: "object-contain max-w-full max-h-full mt-auto ml-auto"
 
                         }
-                        }
-                        width={
-                            predictionInput?.width || RESOLUTIONS["1:1"].width
-                        }
-                        height={
-                            predictionInput?.height || RESOLUTIONS["1:1"].height
                         }
                         src={imagePredicted}
                         alt="Generated image">
