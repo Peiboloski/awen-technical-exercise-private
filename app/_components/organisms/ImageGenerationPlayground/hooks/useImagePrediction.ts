@@ -11,8 +11,8 @@ const useImagesPrediction = () => {
     const [prediction, setPrediction] = useState<Prediction | null>(null);
     const [predictionInput, setPredictionInput] = useState<GenerateImagePredictionInputInterfaceExposed | null>(null);
     const [isFetchingPrediction, setIsFetchingPrediction] = useState(false);
-    const [image, setImage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [imagePredicted, setImagePredicted] = useState<string | null>(null);
+    const [imagePredictionError, setImagePredictionError] = useState<string | null>(null);
     const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const { addImage: addToAllGeneratedImagesArray } = useGeneratedImages()
@@ -25,14 +25,14 @@ const useImagesPrediction = () => {
     };
 
     const handlePredictionFailure = useCallback(() => {
-        setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL); //TODO: Make error more specific
+        setImagePredictionError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL); //TODO: Make error more specific
         setPrediction(null);
         setIsFetchingPrediction(false);
         clearPoolPredictionIntervalAndRemoveRef();
     }, []);
 
     const handlePredictionSuccess = useCallback((predictionResponse: Prediction) => {
-        setImage(predictionResponse.output[0]);
+        setImagePredicted(predictionResponse.output[0]);
         setPrediction(null);
         setIsFetchingPrediction(false);
         clearPoolPredictionIntervalAndRemoveRef();
@@ -93,8 +93,8 @@ const useImagesPrediction = () => {
     }) => {
         try {
             setIsFetchingPrediction(true);
-            setError(null);
-            setImage(null);
+            setImagePredictionError(null);
+            setImagePredicted(null);
             setPredictionInput(userInput);
             const prediction = await generateImagePredictionAction({ userInput, type });
             setPrediction(prediction);
@@ -103,7 +103,7 @@ const useImagesPrediction = () => {
         }
     };
 
-    return { image, startNewImagePrediction, error, isFetchingPrediction, predictionInput };
+    return { imagePredicted, startNewImagePrediction, imagePredictionError, isFetchingPrediction, predictionInput };
 }
 
 export default useImagesPrediction;

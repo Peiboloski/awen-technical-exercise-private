@@ -15,7 +15,7 @@ import { IMAGE_STYLES, INPUT_NAMES, RESOLUTIONS } from "./constants"
 import useImagesPrediction from "./hooks/useImagePrediction"
 
 export const ImageGenerationPlayground = () => {
-    const { error, image, isFetchingPrediction, predictionInput, startNewImagePrediction } = useImagesPrediction()
+    const { imagePredictionError, imagePredicted, isFetchingPrediction, predictionInput, startNewImagePrediction } = useImagesPrediction()
 
     //Selected Tab
     const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationTypes>(GenerationTypes.IMAGE)
@@ -104,7 +104,7 @@ export const ImageGenerationPlayground = () => {
                                         setGenerationInputImage(res[0].url)
                                     }}
                                     onUploadError={(error: Error) => {
-                                        setInputImageUploadError(true)
+                                        setInputImageUploadError(true)//TODO: Add logic to display the error message
                                     }}
                                 />}
                                 {
@@ -167,7 +167,7 @@ export const ImageGenerationPlayground = () => {
             </Card>
         </div>
         <div className="flex flex-col w-[100%] h-[100%] justify-end">
-            {image &&
+            {imagePredicted &&
                 <div className="mt-auto ml-auto relative">
                     <Image
                         classNames={{
@@ -182,10 +182,10 @@ export const ImageGenerationPlayground = () => {
                         height={
                             predictionInput?.height || RESOLUTIONS["1:1"].height
                         }
-                        src={image}
+                        src={imagePredicted}
                         alt="Generated image">
                     </Image>
-                    <GeneratedImageActions isInPlayground url={image} name={prompt || "Generated image"} />
+                    <GeneratedImageActions isInPlayground url={imagePredicted} name={prompt || "Generated image"} />
                 </div>
             }
             {isFetchingPrediction &&
@@ -196,7 +196,7 @@ export const ImageGenerationPlayground = () => {
                     </p>
                 </div>
             }
-            {error && <p className="text-red-500 text-xl font-semibold mx-auto my-auto">{error}</p>}
+            {imagePredictionError && <p className="text-red-500 text-xl font-semibold mx-auto my-auto">{imagePredictionError}</p>}
         </div>
     </section >
 }
