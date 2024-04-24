@@ -203,19 +203,19 @@ export const ImageGenerationPlayground = () => {
 
     return <section className={
         classNames(
-            "flex flex-row w-[100%] h-[100%] jus gap-6",
+            "flex flex-1 flex-row w-[100%] h-[100%] gap-6 overflow-auto",
             "max-md:flex-col"
         )
     }>
         <div className={
             classNames(
-                "flex flex-col w-[600px] h-[100%] font-",
+                "flex flex-col w-[600px] overflow-auto",
                 "max-md:w-[100%]"
             )
         }>
             <Card classNames={
                 {
-                    base: "h-[100%] p-4 overfow-scroll",
+                    base: "h-[100%] p-4",
                     body: "h-100%"
                 }
             }>
@@ -236,7 +236,7 @@ export const ImageGenerationPlayground = () => {
                         </Tab>
                     </Tabs>
                 </CardHeader>
-                <CardBody className="h-[100%]">
+                <CardBody className="h-[100%] relative">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
                         <div className="space-y-6 mr-auto">
                             {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <div>
@@ -305,7 +305,7 @@ export const ImageGenerationPlayground = () => {
                             </RadioGroup>
 
                         </div>
-                        <div className="flex flex-col bg-background sticky bottom-[-20px] w-[100%] py-4">
+                        <div className="flex flex-col bg-background sticky bottom-[-20px] z-20 w-[100%] py-4">
                             <Button isDisabled={isButtonDisabled} className="p-6 text-large mt-auto" color="primary" type="submit" disabled={isButtonDisabled}>
                                 {isFetchingPrediction ? "Generating image..." : "Generate image"}
                             </Button>

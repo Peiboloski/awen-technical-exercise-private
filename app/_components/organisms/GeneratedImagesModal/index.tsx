@@ -28,7 +28,7 @@ const GeneratedImagesModal: React.FC = () => {
         wrapperStyle,
     }: RenderPhotoProps) => {
         return (
-            <div style={{ ...wrapperStyle, position: "relative" }}>
+            <div style={{ ...wrapperStyle, position: "relative" }} className="flex">
                 <GeneratedImageActions url={photo.src} name={alt} />
                 <Image
                     src={photo.src}
@@ -64,7 +64,7 @@ const GeneratedImagesModal: React.FC = () => {
                             <ModalHeader className="flex flex-col gap-1">
                                 Generated Images
                             </ModalHeader>
-                            <ModalBody>
+                            <ModalBody className="mb-4">
                                 <PhotoAlbum targetRowHeight={400} layout="rows" photos={images.map((image) => {
                                     return {
                                         src: image.url,
