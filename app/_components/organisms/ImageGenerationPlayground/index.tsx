@@ -101,7 +101,7 @@ export const ImageGenerationPlayground = () => {
     const poolPredictionIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
     //Selected Tab
-    const [selectedTab, setSelectedTab] = useState<GenerationTypes>(GenerationTypes.IMAGE)
+    const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationTypes>(GenerationTypes.IMAGE)
 
     //Images persistent state context
     const { addImage: addToAllGeneratedImagesArray, generationInputImage, setGenerationInputImage } = useGeneratedImages()
@@ -186,11 +186,11 @@ export const ImageGenerationPlayground = () => {
                 prompt: promptStart + prompt,
                 height,
                 width,
-                image: selectedTab == GenerationTypes.IMAGE_TO_IMAGE ? generationInputImage : undefined
+                image: selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE ? generationInputImage : undefined
             }
 
             setPredictionInput(userInput)
-            const prediction = await generateImagePredictionAction({ userInput, type: selectedTab })
+            const prediction = await generateImagePredictionAction({ userInput, type: selectedGenerationType })
             setPrediction(prediction)
         } catch (error) {
             setError(IMAGE_GENERATION_ERROR_MESSAGES.GENERAL)
@@ -221,8 +221,8 @@ export const ImageGenerationPlayground = () => {
             }>
                 <CardHeader>
                     <Tabs
-                        selectedKey={selectedTab}
-                        onSelectionChange={(key) => setSelectedTab(key as GenerationTypes)}
+                        selectedKey={selectedGenerationType}
+                        onSelectionChange={(key) => setSelectedGenerationType(key as GenerationTypes)}
                         classNames={
                             {
                                 tab: "text-base font-emerald-600 font-medium  p-5 m-1",
@@ -239,7 +239,7 @@ export const ImageGenerationPlayground = () => {
                 <CardBody className="h-[100%]">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
                         <div className="space-y-6 mr-auto">
-                            {(selectedTab == GenerationTypes.IMAGE_TO_IMAGE) && <div>
+                            {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <div>
                                 <p className="text-large font-normal mb-2">Input image <span className="text-danger">*</span></p>
                                 {window && !generationInputImage && <UploadButton
                                     appearance={
