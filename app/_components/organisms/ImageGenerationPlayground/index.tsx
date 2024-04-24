@@ -238,8 +238,8 @@ export const ImageGenerationPlayground = () => {
                 </CardHeader>
                 <CardBody className="h-[100%] relative">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
-                        <div className="space-y-6 mr-auto">
-                            {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <div>
+                        <div className="space-y-6 mr-auto flex flex-col">
+                            {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <div className="flex flex-col mr-auto">
                                 <p className="text-large font-normal mb-2">Input image <span className="text-danger">*</span></p>
                                 {window && !generationInputImage && <UploadButton
                                     appearance={
@@ -259,11 +259,14 @@ export const ImageGenerationPlayground = () => {
                                     }}
                                 />}
                                 {
-                                    generationInputImage && <div className="relative">
+                                    generationInputImage && <div className="relative flex">
                                         <Image
+
                                             src={generationInputImage}
                                             alt="Input image"
-                                            className="object-contain"
+                                            classNames={{
+                                                img: "object-contain max-w-full max-h-[300px]"
+                                            }}
                                         />
                                         <div className="absolute bottom-2 right-2 z-20">
                                             <ImageActionButton icon={<Garbage />} onClick={() => { setGenerationInputImage(null) }} tooltip="Change the input image" />
