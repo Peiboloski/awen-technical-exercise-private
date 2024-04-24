@@ -7,10 +7,8 @@ import CountUp from 'react-countup';
 import TextArea from "../../atoms/TextArea"
 import { Radio, RadioGroup } from "../../atoms/Radio"
 import { useGeneratedImages } from "@/app/_contexts/GeneratedImagesContext"
-import { GeneratedImageActions, ImageActionButton } from "../../molecules/GeneratedImageActions"
+import { GeneratedImageActions } from "../../molecules/GeneratedImageActions"
 import { GenerationTypes } from "@/app/_types/imageGenerationTypes"
-import { UploadButton } from "../../molecules/ImageFileUploader"
-import Garbage from "../../icons/garbage"
 import { IMAGE_STYLES, INPUT_NAMES, RESOLUTIONS } from "./constants"
 import useImagesPrediction from "./hooks/useImagePrediction"
 import GenerationInputImageField from "./GenerationInputImageField";
@@ -26,7 +24,6 @@ export const ImageGenerationPlayground = () => {
 
     //Form fields state
     const [prompt, setPrompt] = useState<string | null>(null)
-    const [inputImageUploadError, setInputImageUploadError] = useState<boolean | null>(null)
 
 
     const onGenerationFormSubmit = async (formData: FormData) => {
