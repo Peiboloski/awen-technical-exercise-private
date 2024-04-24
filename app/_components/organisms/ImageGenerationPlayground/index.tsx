@@ -13,6 +13,7 @@ import { UploadButton } from "../../molecules/ImageFileUploader"
 import Garbage from "../../icons/garbage"
 import { IMAGE_STYLES, INPUT_NAMES, RESOLUTIONS } from "./constants"
 import useImagesPrediction from "./hooks/useImagePrediction"
+import GenerationInputImageField from "./GenerationInputImageField";
 
 export const ImageGenerationPlayground = () => {
     const { imagePredictionError, imagePredicted, isFetchingPrediction, predictionInput, startNewImagePrediction } = useImagesPrediction()
@@ -20,7 +21,7 @@ export const ImageGenerationPlayground = () => {
     //Selected Tab
     const [selectedGenerationType, setSelectedGenerationType] = useState<GenerationTypes>(GenerationTypes.IMAGE)
 
-    //Images persistent state context
+    //Input image state (stored in context to be able to set it from other components)
     const { generationInputImage, setGenerationInputImage } = useGeneratedImages()
 
     //Form fields state
@@ -88,41 +89,7 @@ export const ImageGenerationPlayground = () => {
                 <CardBody className="h-[100%] relative">
                     <form className="flex flex-col justify-between gap-6 h-[100%]" action={onGenerationFormSubmit}>
                         <div className="space-y-6 mr-auto flex flex-col">
-                            {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <div className="flex flex-col mr-auto">
-                                <p className="text-large font-normal mb-2">Input image <span className="text-danger">*</span></p>
-                                {window && !generationInputImage && <UploadButton
-                                    appearance={
-                                        {
-                                            button: "mr-auto",
-                                            allowedContent: "mr-auto",
-                                            clearBtn: "mr-auto"
-                                        }
-                                    }
-                                    content={{ button: "Upload image" }}
-                                    endpoint="imageUploader"
-                                    onClientUploadComplete={(res) => {
-                                        setGenerationInputImage(res[0].url)
-                                    }}
-                                    onUploadError={(error: Error) => {
-                                        setInputImageUploadError(true)//TODO: Add logic to display the error message
-                                    }}
-                                />}
-                                {
-                                    generationInputImage && <div className="relative flex">
-                                        <Image
-
-                                            src={generationInputImage}
-                                            alt="Input image"
-                                            classNames={{
-                                                img: "object-contain max-w-full max-h-[300px]"
-                                            }}
-                                        />
-                                        <div className="absolute bottom-2 right-2 z-20">
-                                            <ImageActionButton icon={<Garbage />} onClick={() => { setGenerationInputImage(null) }} tooltip="Change the input image" />
-                                        </div>
-                                    </div>
-                                }
-                            </div>}
+                            {(selectedGenerationType == GenerationTypes.IMAGE_TO_IMAGE) && <GenerationInputImageField generationInputImage={generationInputImage} setGenerationInputImage={setGenerationInputImage} />}
                             <TextArea
                                 type="text"
                                 label="Image description"
